@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/root/ls/study/json/build",
+  "command": "/usr/local/src/build-gcc-13.2.0/bin/g++ -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/main.dir/main.cpp.o -c /root/ls/study/json/main.cpp",
+  "file": "/root/ls/study/json/main.cpp",
+  "output": "CMakeFiles/main.dir/main.cpp.o"
+}
+]
