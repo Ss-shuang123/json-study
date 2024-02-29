@@ -9,10 +9,6 @@
 
 
 struct JSONObject;
-
-
-
-
 using JSONDict = std::unordered_map<std::string, JSONObject>;
 using JSONList = std::vector<JSONObject>;
 
@@ -73,11 +69,12 @@ char unescape(char ch){                                                         
         default: return ch;
     }
 }
+
 std::pair<JSONObject, size_t> parse(std::string_view json){
     if(json.empty()){  // 判断json为空
         return {JSONObject{std::nullptr_t{}},0};
     }
-    else if(size_t off = json.find_first_not_of(" \n\r\t\v\f\0"); off!=0 && off != json.npos) 
+    else if(size_t off = json.find_first_not_of(" \n\r\t\v\f\0"); off!=0 && off != json.npos)  // 删除美化的空格换行等
     {
         auto [obj, eaten] = parse(json.substr(off));
         return {std::move(obj), eaten + off};
@@ -207,7 +204,6 @@ std::pair<JSONObject, size_t> parse(std::string_view json){
         return {JSONObject{std::move(map)}, i};
     }
 
-
     return {JSONObject{std::nullptr_t{}},0};
 
 }
@@ -284,7 +280,6 @@ int main(int argc, const char** argv) {
     print(obj.is<std::string>());
     auto const &dict = obj.get<JSONDict>();
     print("test : ", dict.at("json").get<int>());
-    
 
     /*
         测试3  
