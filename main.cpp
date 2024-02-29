@@ -11,21 +11,6 @@
 struct JSONObject;
 
 
-struct Functor{                    //  属于测试7
-    void operator() (int val) const {
-        print("int is",val);
-    }
-    void operator() (double val) const {
-        print("int is",val);
-    }
-    void operator() (std::string val) const {
-        print("string is",val);
-    }
-    template<class T>                        //  必须有 
-    void operator() (T val) const {
-        print("other",val);
-    }
-};
 
 
 using JSONDict = std::unordered_map<std::string, JSONObject>;
@@ -227,6 +212,55 @@ std::pair<JSONObject, size_t> parse(std::string_view json){
 
 }
 
+struct Functor{                    //  属于测试7
+    void operator() (int val) const {
+        print("int is",val);
+    }
+    void operator() (double val) const {
+        print("double is",val);
+    }
+    void operator() (std::string val) const {
+        print("string is",val);
+    }
+    template<class T>                        //  必须有 
+    void operator() (T val) const {
+        print("other",val);
+    }
+};
+
+
+/* 测试8
+// c++11方式：模板递归+继承
+template <class... Fs>
+struct overloaded;
+
+template <class F1>
+struct overloaded<F1> : F1 {
+    overloaded(F1 f1) : F1(f1) {}
+    using F1::operator();
+};
+
+template <class F1, class... Fs>
+struct overloaded<F1, Fs...> : F1, overloaded<Fs...> {
+    overloaded(F1 f1, Fs... fs) : F1(f1), overloaded<Fs...>(fs...) {}
+    using F1::operator();
+    using overloaded<Fs...>::operator();
+};
+
+template <class... Fs>
+overloaded<Fs...> make_overloaded(Fs... fs) {
+    return overloaded<Fs...>(fs...);
+}
+
+*/
+// 折叠表达式 + 模板
+template <class ...Fs>
+struct overloaded : Fs...{
+    using Fs::operator()...;
+};
+
+template <class ...Fs>
+overloaded(Fs...) -> overloaded<Fs...>;
 
 
 int main(int argc, const char** argv) {
@@ -309,7 +343,7 @@ int main(int argc, const char** argv) {
     // dovisit(school);
     
     /*
-        测试6  
+        测试6  匿名函数递归
     */
    auto dovisit = [&]  (auto &dovisit, JSONObject const& school) -> void{      // 必须给定类型
     std::visit([&] (auto const &school){
@@ -329,10 +363,33 @@ int main(int argc, const char** argv) {
      /*
         测试7
     */
-   std::string_view st = R"json(999)json";
+   std::string_view st = R"json(999.1)json";
    auto [obj1, eaten1] = parse(st);
 
     std::visit(Functor(), obj1.inner);
+
+    /*
+        测试8  C++17 overload技术
+    */
+
+   std::visit(
+    overloaded{
+        [&](int val){
+            print("int is",val);
+        },
+        [&](double val){
+            print("double is",val);
+        },
+        [&](std::string val){
+            print("string is",val);
+        },
+        [&](auto val){
+            print("unknown is",val);
+        }
+    },
+    obj1.inner
+   );
+
     return 0;
 }
 
