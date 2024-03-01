@@ -1,4 +1,5 @@
-This repo is my study to learn C++.
+This repo is my study to learn C++.  
+
 !Need C++17 gcc>=12.0
 # How to Run
 cmake -B build
